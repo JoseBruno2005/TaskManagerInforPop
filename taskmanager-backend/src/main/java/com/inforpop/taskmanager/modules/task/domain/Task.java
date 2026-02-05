@@ -40,8 +40,10 @@ public class Task {
     @Column(nullable = false)
     private String title;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String status;
+    @Builder.Default
+    private TaskStatus status = TaskStatus.PENDING;
 
     @Column(nullable = false)
     private boolean deleted = false;
@@ -54,7 +56,6 @@ public class Task {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "creator_user_id", nullable = false)
-    @CreatedBy
     private User creator;
 
     @CreatedDate

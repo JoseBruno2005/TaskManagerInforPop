@@ -7,8 +7,10 @@ import com.inforpop.taskmanager.modules.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,15 +31,19 @@ public class AuthController {
             description = "Deve retornar o token JWT."
     )
     public ResponseEntity<LoginResponseDto> login(@RequestBody @Valid LoginDto login){
-        var userNamePassword = new UsernamePasswordAuthenticationToken(
-                login.email(), login.password()
-        );
+        try {
+            var userNamePassword = new UsernamePasswordAuthenticationToken(
+                    login.email(), login.password()
+            );
 
-        var auth = this.authenticationManager.authenticate(userNamePassword);
+            var auth = this.authenticationManager.authenticate(userNamePassword);
+            var token = tokenService.generatedToken((User) auth.getPrincipal());
 
-        var token = tokenService.generatedToken((User) auth.getPrincipal());
+            return ResponseEntity.ok(new LoginResponseDto(token));
 
-        return ResponseEntity.ok(new LoginResponseDto(token));
+        } catch (DisabledException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
     }
 
 }

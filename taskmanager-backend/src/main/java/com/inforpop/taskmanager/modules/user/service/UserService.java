@@ -6,9 +6,13 @@ import com.inforpop.taskmanager.modules.user.dto.mapper.UserMapper;
 import com.inforpop.taskmanager.modules.user.dto.request.CreateUserDto;
 import com.inforpop.taskmanager.modules.user.dto.response.ResponseUserDto;
 import com.inforpop.taskmanager.modules.user.repository.UserRepository;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import javax.management.RuntimeErrorException;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -29,5 +33,18 @@ public class UserService {
         user.setEnabled(true);
 
         return userMapper.entityToDto(userRepository.save(user));
+    }
+
+    public User getUserByPublicId(UUID public_id){
+        return userRepository.findByPublic_id(public_id).orElseThrow(
+                () -> new RuntimeException("Usuário não encontrado para id:")
+        );
+    }
+
+    public User getAuthenticatedUser(){
+        return (User) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
     }
 }
