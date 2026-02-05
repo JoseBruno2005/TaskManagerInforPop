@@ -1,4 +1,4 @@
-package com.inforpop.taskmanager.exceptions;
+package com.inforpop.taskmanager.exceptions.dto;
 
 import java.time.Instant;
 

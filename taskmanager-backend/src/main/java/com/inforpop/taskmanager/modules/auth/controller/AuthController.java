@@ -1,5 +1,7 @@
 package com.inforpop.taskmanager.modules.auth.controller;
 
+import com.inforpop.taskmanager.exceptions.BusinessException;
+import com.inforpop.taskmanager.exceptions.UnauthorizedAccessException;
 import com.inforpop.taskmanager.modules.auth.dto.request.LoginDto;
 import com.inforpop.taskmanager.modules.auth.dto.response.LoginResponseDto;
 import com.inforpop.taskmanager.modules.auth.service.TokenService;
@@ -10,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,7 +45,9 @@ public class AuthController {
             return ResponseEntity.ok(new LoginResponseDto(token));
 
         } catch (DisabledException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            throw new BusinessException("Esta conta de usuário está desativada.");
+        } catch (BadCredentialsException e) {
+            throw new UnauthorizedAccessException("Email ou senha inválidos.");
         }
     }
 

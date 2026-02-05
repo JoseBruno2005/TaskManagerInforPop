@@ -1,5 +1,9 @@
 package com.inforpop.taskmanager.modules.task.service;
 
+import com.inforpop.taskmanager.exceptions.BusinessException;
+import com.inforpop.taskmanager.exceptions.InvalidStatusException;
+import com.inforpop.taskmanager.exceptions.ResourceNotFoundException;
+import com.inforpop.taskmanager.exceptions.UnauthorizedAccessException;
 import com.inforpop.taskmanager.modules.task.domain.TaskStatus;
 import com.inforpop.taskmanager.modules.task.dto.mapper.TaskMapper;
 import com.inforpop.taskmanager.modules.task.dto.request.CreateTaskDto;
@@ -30,7 +34,7 @@ public class TaskService {
         if(createTaskDto.assignedUser() != null){
             User assignedUser = userService.getUserByPublicId(createTaskDto.assignedUser());
             if(!assignedUser.getEnabled()){
-                throw new RuntimeException("Usuários desativados não devem receber tarefas.");
+                throw new BusinessException("Usuários desativados não devem receber tarefas.");
             }else {
                 task.setAssignedUser(assignedUser);
             }
@@ -42,7 +46,7 @@ public class TaskService {
 
     public void delete(UUID publicId){
         var task = taskRepository.findByPublic_id(publicId)
-                .orElseThrow(() -> new RuntimeException("Tarefa não encontrada com o ID fornecido."));
+                .orElseThrow(() -> new ResourceNotFoundException("Tarefa não encontrada com o ID fornecido."));
 
         task.setDeleted(true);
         taskRepository.save(task);
@@ -51,7 +55,7 @@ public class TaskService {
     public ResponseTaskDto findByPublicId(UUID publicId){
         return taskMapper.entityToDto(
                 taskRepository.findByPublic_id(publicId).orElseThrow(
-                        (() -> new RuntimeException("Atividade não encontrada."))
+                        (() -> new ResourceNotFoundException("Atividade não encontrada."))
                 )
         );
     }
@@ -62,7 +66,7 @@ public class TaskService {
             try {
                 taskStatus = TaskStatus.valueOf(status.toUpperCase());
             } catch (IllegalArgumentException e) {
-                throw new RuntimeException("Status inválido: " + status);
+                throw new InvalidStatusException("Status inválido: " + status);
             }
         }
 
@@ -74,7 +78,17 @@ public class TaskService {
 
     public ResponseTaskDto update(UUID publicId, UpdateTaskDto updateDto) {
         var task = taskRepository.findByPublic_id(publicId)
-                .orElseThrow(() -> new RuntimeException("Tarefa não encontrada para atualização."));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Tarefa não encontrada para atualização."
+                ));
+
+        User currentUser = userService.getAuthenticatedUser();
+        if (!task.getCreator().getId().equals(currentUser.getId())
+                && !currentUser.getRole().name().equals("ADMIN")) {
+            throw new UnauthorizedAccessException(
+                    "Você não tem permissão para alterar esta tarefa."
+            );
+        }
 
         if (updateDto.title() != null){
             task.setTitle(updateDto.title());
@@ -88,14 +102,16 @@ public class TaskService {
             try {
                 task.setStatus(TaskStatus.valueOf(updateDto.status().toUpperCase()));
             } catch (IllegalArgumentException e) {
-                throw new RuntimeException("Status inválido: " + updateDto.status());
+                throw new InvalidStatusException("Status inválido: " + updateDto.status());
             }
         }
 
         if (updateDto.assignedUser() != null) {
             User assignedUser = userService.getUserByPublicId(updateDto.assignedUser());
             if (!assignedUser.getEnabled()) {
-                throw new RuntimeException("Não é possível atribuir tarefas a usuários desativados.");
+                throw new BusinessException(
+                        "Não é possível atribuir tarefas a usuários desativados."
+                );
             }
             task.setAssignedUser(assignedUser);
         }

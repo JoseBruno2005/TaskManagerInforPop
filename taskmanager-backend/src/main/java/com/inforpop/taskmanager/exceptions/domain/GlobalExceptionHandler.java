@@ -1,5 +1,10 @@
-package com.inforpop.taskmanager.exceptions;
+package com.inforpop.taskmanager.exceptions.domain;
 
+import com.inforpop.taskmanager.exceptions.BusinessException;
+import com.inforpop.taskmanager.exceptions.ResourceConflictException;
+import com.inforpop.taskmanager.exceptions.ResourceNotFoundException;
+import com.inforpop.taskmanager.exceptions.UnauthorizedAccessException;
+import com.inforpop.taskmanager.exceptions.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

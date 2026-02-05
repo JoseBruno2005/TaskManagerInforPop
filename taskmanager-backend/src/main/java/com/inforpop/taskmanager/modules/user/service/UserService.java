@@ -1,6 +1,7 @@
 package com.inforpop.taskmanager.modules.user.service;
 
 import com.inforpop.taskmanager.exceptions.ResourceConflictException;
+import com.inforpop.taskmanager.exceptions.ResourceNotFoundException;
 import com.inforpop.taskmanager.modules.user.domain.User;
 import com.inforpop.taskmanager.modules.user.dto.mapper.UserMapper;
 import com.inforpop.taskmanager.modules.user.dto.request.CreateUserDto;
@@ -38,7 +39,7 @@ public class UserService {
 
     public User getUserByPublicId(UUID public_id){
         return userRepository.findByPublic_id(public_id).orElseThrow(
-                () -> new RuntimeException("Usuário não encontrado para id:")
+                () -> new ResourceNotFoundException("Usuário não encontrado para id:" + public_id.toString())
         );
     }
 
@@ -51,7 +52,7 @@ public class UserService {
 
     public ResponseUserDto findByPublicId(UUID publicId) {
         User user = userRepository.findByPublic_id(publicId)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado."));
 
         return userMapper.entityToDto(user);
     }
