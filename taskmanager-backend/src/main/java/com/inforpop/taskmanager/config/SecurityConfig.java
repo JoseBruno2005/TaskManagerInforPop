@@ -41,6 +41,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/task/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/task/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/task", "/task/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/users/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)

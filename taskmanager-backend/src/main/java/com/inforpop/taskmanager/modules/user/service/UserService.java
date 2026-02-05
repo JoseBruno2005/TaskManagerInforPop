@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.management.RuntimeErrorException;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -39,6 +40,20 @@ public class UserService {
         return userRepository.findByPublic_id(public_id).orElseThrow(
                 () -> new RuntimeException("Usuário não encontrado para id:")
         );
+    }
+
+    public List<ResponseUserDto> findAll(){
+        return userRepository.findAll()
+                .stream()
+                .map(userMapper::entityToDto)
+                .toList();
+    }
+
+    public ResponseUserDto findByPublicId(UUID publicId) {
+        User user = userRepository.findByPublic_id(publicId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
+
+        return userMapper.entityToDto(user);
     }
 
     public User getAuthenticatedUser(){
