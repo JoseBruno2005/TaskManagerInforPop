@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.Where;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -22,7 +23,7 @@ import java.util.UUID;
                 @UniqueConstraint(columnNames = "public_id")
         }
 )
-@SQLDelete(sql = "UPDATE tasks SET deleted = true WHERE id = ?")
+@SQLRestriction("deleted = false")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor

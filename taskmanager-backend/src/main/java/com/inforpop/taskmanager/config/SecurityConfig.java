@@ -33,10 +33,14 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/v3/api-docs/**", "/v3/api-docs.yaml").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/swagger-ui/index.html", "/swagger-ui.html").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/swagger-ui/index.html",
+                                "/swagger-ui.html").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/users/register").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/tasks").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/task", "/task/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/task/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/task/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/task", "/task/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
