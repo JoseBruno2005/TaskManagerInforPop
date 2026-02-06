@@ -1,0 +1,75 @@
+<h1 class="text-2xl font-bold mb-4">Dashboard</h1>
+
+@if (isAdmin()) {
+  <button (click)="goToCreateTask()" class="bg-blue-600 text-white px-4 py-2 rounded mb-4">
+    Nova tarefa
+  </button>
+}
+
+<div class="flex gap-4 mb-6">
+  <input
+    type="text"
+    placeholder="Buscar por título"
+    class="border rounded px-3 py-2 w-full"
+    [value]="titleFilter()"
+    (input)="titleFilter.set($any($event.target).value); loadTasks()"
+  />
+
+  <select
+    class="border rounded px-3 py-2"
+    [value]="statusFilter()"
+    (change)="statusFilter.set($any($event.target).value); loadTasks()"
+  >
+    <option value="">Todos</option>
+    <option value="PENDING">Pendente</option>
+    <option value="IN_PROGRESS">Em progresso</option>
+    <option value="COMPLETED">Concluída</option>
+    <option value="CANCELED">Cancelada</option>
+  </select>
+</div>
+
+@if (loading()) {
+  <p>Carregando tarefas...</p>
+}
+
+@if (errorMessage()) {
+  <p class="text-red-500">{{ errorMessage() }}</p>
+}
+
+@if (!loading() && tasks().length) {
+  <ul>
+    @for (task of tasks(); track task.publicId) {
+      <li class="border p-4 rounded mb-2">
+        <h2 class="font-semibold">{{ task.title }}</h2>
+
+        <p class="text-sm text-gray-600">
+          {{ task.description }}
+        </p>
+
+        <span
+          class="inline-block mt-2 text-xs px-2 py-1 rounded"
+          [ngClass]="{
+            'bg-yellow-200': task.status === 'PENDING',
+            'bg-blue-200': task.status === 'IN_PROGRESS',
+            'bg-green-200': task.status === 'COMPLETED',
+            'bg-red-200': task.status === 'CANCELED',
+          }"
+        >
+          {{ task.status }}
+        </span>
+        @if (isAdmin()) {
+          <button class="bg-green-200" (click)="goToEditTask(task.publicId)">
+            Atualizar
+          </button>
+          <button class="bg-red-300">
+            Deletar
+          </button>
+        }
+      </li>
+    }
+  </ul>
+}
+
+@if (!loading() && !tasks().length) {
+  <p>Nenhuma tarefa encontrada.</p>
+}

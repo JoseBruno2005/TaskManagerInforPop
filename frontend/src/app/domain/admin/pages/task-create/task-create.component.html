@@ -1,0 +1,51 @@
+<h1 class="text-2xl font-bold mb-4">Criar tarefa</h1>
+
+<form (ngSubmit)="submit()" class="space-y-4 max-w-lg">
+
+  <input
+    [(ngModel)]="task.title"
+    name="title"
+    required
+    placeholder="Título"
+    class="w-full border p-2 rounded"
+  />
+
+  <textarea
+    [(ngModel)]="task.description"
+    name="description"
+    required
+    placeholder="Descrição"
+    class="w-full border p-2 rounded"
+  ></textarea>
+
+  <select
+    [(ngModel)]="task.status"
+    name="status"
+    class="w-full border p-2 rounded"
+  >
+    <option value="PENDING">Pendente</option>
+    <option value="IN_PROGRESS">Em progresso</option>
+    <option value="COMPLETED">Concluída</option>
+    <option value="CANCELED">Cancelada</option>
+  </select>
+
+  <input
+    [(ngModel)]="task.assignedUser"
+    name="assignedUser"
+    placeholder="Usuario associado"
+    class="w-full border p-2 rounded"
+  />
+
+  @if (errorMessage) {
+    <p class="text-red-500">{{ errorMessage }}</p>
+  }
+
+  <button
+    type="submit"
+    [disabled]="loading"
+    class="bg-blue-600 text-white px-4 py-2 rounded"
+  >
+    Criar
+  </button>
+
+</form>

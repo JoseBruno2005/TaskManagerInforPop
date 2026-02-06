@@ -6,6 +6,7 @@ import com.inforpop.taskmanager.modules.auth.dto.request.LoginDto;
 import com.inforpop.taskmanager.modules.auth.dto.response.LoginResponseDto;
 import com.inforpop.taskmanager.modules.auth.service.TokenService;
 import com.inforpop.taskmanager.modules.user.domain.User;
+import com.inforpop.taskmanager.modules.user.dto.mapper.UserMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
+    private final UserMapper userMapper;
 
     @PostMapping("/login")
     @Operation(
@@ -42,7 +44,13 @@ public class AuthController {
             var auth = this.authenticationManager.authenticate(userNamePassword);
             var token = tokenService.generatedToken((User) auth.getPrincipal());
 
-            return ResponseEntity.ok(new LoginResponseDto(token));
+            var user = (User) auth.getPrincipal();
+
+            return ResponseEntity.ok(
+                    new LoginResponseDto(
+                            token,
+                            userMapper.entityToDto(user
+                            )));
 
         } catch (DisabledException e) {
             throw new BusinessException("Esta conta de usuário está desativada.");

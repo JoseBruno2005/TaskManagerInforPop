@@ -1,0 +1,46 @@
+<h1 class="text-2xl font-bold mb-4">Editar tarefa</h1>
+
+@if (loading()) {
+  <p>Carregando...</p>
+} @else {
+
+  <form (ngSubmit)="submit()" class="space-y-4 max-w-lg">
+
+    <input
+      [(ngModel)]="task().title"
+      name="title"
+      placeholder="Título"
+      class="w-full border p-2 rounded"
+    />
+
+    <textarea
+      [(ngModel)]="task().description"
+      name="description"
+      placeholder="Descrição"
+      class="w-full border p-2 rounded"
+    ></textarea>
+
+    <select
+      [(ngModel)]="task().status"
+      name="status"
+      class="w-full border p-2 rounded"
+    >
+      <option value="PENDING">Pendente</option>
+      <option value="IN_PROGRESS">Em progresso</option>
+      <option value="COMPLETED">Concluída</option>
+      <option value="CANCELED">Cancelada</option>
+    </select>
+
+    @if (errorMessage()) {
+      <p class="text-red-500">{{ errorMessage() }}</p>
+    }
+
+    <button
+      type="submit"
+      class="bg-green-600 text-white px-4 py-2 rounded"
+    >
+      Atualizar
+    </button>
+    //Falta colocar para atualizar o usuario associado a atividade!!
+  </form>
+}

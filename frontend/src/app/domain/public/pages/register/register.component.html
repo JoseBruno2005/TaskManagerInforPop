@@ -1,0 +1,48 @@
+<h2 class="text-2xl font-semibold mb-4">Criar conta</h2>
+
+<form
+  class="max-w-md mx-auto bg-white p-6 rounded-lg shadow space-y-4"
+  (ngSubmit)="submit(form.value)"
+  #form="ngForm"
+>
+  <input
+    name="name"
+    ngModel
+    placeholder="Nome"
+    required
+    class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-400"
+  />
+
+  <input
+    name="email"
+    ngModel
+    placeholder="Email"
+    required
+    class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-400"
+  />
+
+  <input
+    name="password"
+    type="password"
+    ngModel
+    required
+    placeholder="Senha"
+    class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-400"
+  />
+
+  <select
+    name="role"
+    ngModel
+    class="w-full border rounded px-3 py-2 bg-white"
+  >
+    <option value="USER">Usuário</option>
+    <option value="ADMIN">Admin</option>
+  </select>
+
+  <button
+    type="submit"
+    class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+  >
+    Cadastrar
+  </button>
+</form>
