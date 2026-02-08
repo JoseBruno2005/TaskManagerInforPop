@@ -17,7 +17,18 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     Optional<Task> findByPublic_id(@Param("public_id") UUID public_id);
 
     @Query("SELECT t FROM Task t WHERE " +
-            "(:title IS NULL OR LOWER(CAST(t.title AS string)) LIKE LOWER(CONCAT('%', CAST(:title AS string), '%'))) AND " +
+            "(:title IS NULL OR LOWER(CAST(t.title AS string)) " +
+            "LIKE LOWER(CONCAT('%', CAST(:title AS string), '%'))) AND " +
             "(CAST(:status AS string) IS NULL OR t.status = :status)")
     List<Task> findByFilters(@Param("title") String title, @Param("status") TaskStatus status);
+
+    @Query("SELECT t FROM Task t WHERE " +
+            "t.assignedUser.public_id = :publicId AND (:title IS NULL OR LOWER(CAST(t.title AS string)) " +
+            "LIKE LOWER(CONCAT('%', CAST(:title AS string), '%'))) " +
+            "AND (CAST(:status AS string) IS NULL OR t.status = :status)")
+    List<Task> findByAssignedUserWithFilters(
+            @Param("publicId") UUID publicId,
+            @Param("title") String title,
+            @Param("status") TaskStatus status
+    );
 }

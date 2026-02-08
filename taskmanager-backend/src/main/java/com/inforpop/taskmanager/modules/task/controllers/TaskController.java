@@ -70,6 +70,20 @@ public class TaskController {
         return ResponseEntity.ok(taskService.findAll(title, status));
     }
 
+    @GetMapping("/my-tasks")
+    @Operation(
+            summary = "Listar tarefas de um User.",
+            description = "Lista tarefas não excluídas associadas a um determinando usuário do tipo USER."
+    )
+    public ResponseEntity<List<ResponseTaskDto>> findMyAssignedTasks(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String status
+    ) {
+        return ResponseEntity.ok(
+                taskService.findByAssignedUser(title, status)
+        );
+    }
+
     @PutMapping("/{id}")
     @Operation(
             summary = "Atualizar tarefa.",

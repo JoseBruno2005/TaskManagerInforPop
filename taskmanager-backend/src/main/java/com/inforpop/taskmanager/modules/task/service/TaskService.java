@@ -61,6 +61,30 @@ public class TaskService {
         );
     }
 
+    public List<ResponseTaskDto> findByAssignedUser(String title, String status) {
+
+        User user = userService.getAuthenticatedUser();
+
+        TaskStatus taskStatus = null;
+        if (status != null && !status.isBlank()) {
+            try {
+                taskStatus = TaskStatus.valueOf(status.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new InvalidStatusException("Status inválido: " + status);
+            }
+        }
+
+        return taskRepository
+                .findByAssignedUserWithFilters(
+                        user.getPublic_id(),
+                        title,
+                        taskStatus
+                )
+                .stream()
+                .map(taskMapper::entityToDto)
+                .toList();
+    }
+
     public List<ResponseTaskDto> findAll(String title, String status) {
         TaskStatus taskStatus = null;
         if (status != null && !status.isBlank()) {
