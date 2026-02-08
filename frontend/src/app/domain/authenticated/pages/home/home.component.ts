@@ -4,6 +4,8 @@ import { Task } from "../../../../shared/types/tasks/task.types";
 import { TaskService } from "../../../../shared/services/tasks/task.service";
 import { AuthService } from "../../../../shared/services/auth/auth.service";
 import { Router } from "@angular/router";
+import { AuthUser } from "../../../../shared/types/users/user.types";
+import { StorageKeys, StorageUtil } from "../../../../shared/utils/storage.utils";
 
 @Component({
     standalone: true,
@@ -26,48 +28,53 @@ export class HomeComponent implements OnInit {
 
     isAdmin = signal(false);
 
+    authenticatedUser = signal<AuthUser | null>(null);
+
 
     constructor(
         private taskService: TaskService,
         private authService: AuthService,
         private router: Router
-    ){}
+    ) { }
 
 
     ngOnInit(): void {
         this.isAdmin.set(this.authService.isAdmin())
+
+        this.authenticatedUser.set(StorageUtil.get<AuthUser>(StorageKeys.USER));
+
         this.loadTasks();
     }
 
-    goToCreateTask(){
+    goToCreateTask() {
         this.router.navigate(['/admin/tasks/create'])
     }
 
-    goToEditTask(id: string){
+    goToEditTask(id: string) {
         this.router.navigate([`/admin/task/edit/${id}`])
     }
 
-    handleDeleteTask(id: string){
+    handleDeleteTask(id: string) {
         this.taskIdDelete.set(id);
         this.showDeleteModal.set(true);
     }
 
-    closeModal(){
+    closeModal() {
         this.showDeleteModal.set(false);
         this.taskIdDelete.set(null);
     }
 
 
-    confirmDeleteTask(){
+    confirmDeleteTask() {
         const id = this.taskIdDelete();
 
-        if(id){
+        if (id) {
             this.loading.set(true);
             this.taskService.delete(id).subscribe({
                 next: () => {
                     this.loadTasks();
                     this.closeModal();
-                },error: (error) => {
+                }, error: (error) => {
                     this.errorMessage.set(error.message);
                     this.loading.set(false);
                     this.closeModal();
@@ -76,20 +83,24 @@ export class HomeComponent implements OnInit {
         }
     }
 
-    loadTasks(){
-
+    loadTasks() {
         this.loading.set(true);
 
-        this.taskService.findAll({
+        const filters = {
             title: this.titleFilter() || undefined,
             status: this.statusFilter() || undefined
-        }).subscribe({
+        };
+
+        const request$ = this.isAdmin()
+            ? this.taskService.findAll(filters)
+            : this.taskService.findMyTasks(filters);
+
+        request$.subscribe({
             next: (tasks) => {
                 this.tasks.set(tasks);
                 this.loading.set(false);
             },
             error: (error) => {
-                console.log(this.errorMessage);
                 this.errorMessage.set(error.message);
                 this.loading.set(false);
             }

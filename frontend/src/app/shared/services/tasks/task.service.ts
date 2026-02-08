@@ -13,6 +13,11 @@ export class TaskService {
         return this.request.get<Task[]>('/task', filters);
     }
 
+    findMyTasks(filters?: { title?: string; status?: string }) {
+        return this.request.get<Task[]>('/task/my-tasks', filters);
+    }
+
+
     findById(id: string): Observable<Task> {
         return this.request.get<Task>(`/task/${id}`);
     }
