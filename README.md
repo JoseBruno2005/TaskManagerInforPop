@@ -66,6 +66,30 @@ Pré-requisitos
 Docker e Docker Compose instalados.
 Node.js e Angular CLI instalados (para rodar o front localmente).
 ```
+#### Caso não tenha as ferramentas necessárias siga as instruções abaixo:
+
+1. Node.js e Angular CLI
+Node.js: Baixe a versão LTS em nodejs.org (https://nodejs.org/en). Após instalar, verifique com node -v no terminal.
+
+Angular CLI: No terminal, execute:
+
+```bash
+npm install -g @angular/cli.
+```
+
+2. Docker e Docker Compose
+
+Vá no site (https://docs.docker.com/get-started/get-docker/)
+
+Windows / macOS: Instale o Docker Desktop. O Compose já vem incluso.
+
+Linux (Ubuntu):
+
+```bash
+sudo apt update && sudo apt install docker.io docker-compose-v2 -y
+sudo systemctl start docker
+sudo usermod -aG docker $USER
+```
 
 1. Configuração do Ambiente
    
@@ -125,7 +149,7 @@ USER: Pode visualizar as tarefas atribuídas.
 
 Soft Delete: A remoção de tarefas não as exclui fisicamente do banco de dados, apenas as marca como deletadas.
 
-Filtros: É possível realizar buscas por título e filtrar por status (PENDING, DOING, DONE).
+Filtros: É possível realizar buscas por título e filtrar por status (PENDING, IN_PROGRESS, COMPLETED, CANCELED).
 
 Tratamento de Erros: Erros de validação, conflitos de recurso e falhas de negócio são capturados globalmente e retornados em um formato padronizado.
 ```
