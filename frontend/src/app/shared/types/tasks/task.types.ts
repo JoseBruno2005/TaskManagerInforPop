@@ -19,13 +19,12 @@ export interface Task {
 export interface CreateTaskRequest {
     title: string;
     description: string;
-    status?: TaskStatus;
     assignedUser?: string;
 }
 
 export interface UpdateTaskRequest {
-    title?: string;
-    description?: string;
-    status?: string;
-    assignedUser?: string;
+    title?: string | null;
+    description?: string | null;
+    status?: string | null;
+    assignedUser?: string | null;
 }

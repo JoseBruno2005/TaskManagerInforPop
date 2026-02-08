@@ -12,4 +12,10 @@ export class UserService {
       data
     );
   }
+
+  findAll() {
+    return this.request.get<UserResponse[]>(
+      '/users'
+    )
+  }
 }

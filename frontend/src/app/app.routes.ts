@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { MainLayoutComponent } from './core/layout/main.component';
 
 export const routes: Routes = [
   {
@@ -9,12 +10,14 @@ export const routes: Routes = [
   },
   {
     path: 'admin',
+    component: MainLayoutComponent,
     loadChildren: () =>
       import('./domain/admin/routes/admin.routes')
         .then(r => r.ADMIN_ROUTES)
   },
   {
     path: '',
+    component: MainLayoutComponent,
     loadChildren: () =>
       import('./domain/authenticated/routes/authenticated.routes')
         .then(r => r.AUTHENTICATED_ROUTES)

@@ -4,12 +4,15 @@ import { RequestService } from "../request.service";
 import { Injectable } from "@angular/core";
 import { StorageKeys, StorageUtil } from "../../utils/storage.utils";
 import { AuthUser } from "../../types/users/user.types";
+import { getTokenExpiration } from "../../utils/getTokenExpiration.utils";
 
 @Injectable({
     providedIn: 'root'
 })
 export class AuthService {
     constructor(private request: RequestService) { }
+
+    private logoutTimer: any;
 
     login(data: LoginRequest) {
         return this.request.post<LoginResponse>(
@@ -22,16 +25,36 @@ export class AuthService {
         );
     }
 
-    logout(){
+    logout() {
         StorageUtil.remove(StorageKeys.TOKEN);
         StorageUtil.remove(StorageKeys.USER);
     }
 
-    getToken(){
+    scheduleAutoLogout(token: string) {
+        const expiration = getTokenExpiration(token);
+
+        if (!expiration) {
+            this.logout();
+            return;
+        }
+
+        const expiresIn = expiration - Date.now();
+
+        if (expiresIn <= 0) {
+            this.logout();
+            return;
+        }
+
+        this.logoutTimer = setTimeout(() => {
+            this.logout();
+        }, expiresIn);
+    }
+
+    getToken() {
         return StorageUtil.get(StorageKeys.TOKEN);
     }
 
-    isAuthenticated(){
+    isAuthenticated() {
         return !!this.getToken();
     }
 

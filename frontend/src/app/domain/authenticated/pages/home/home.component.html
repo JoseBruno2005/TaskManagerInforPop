@@ -1,75 +1,141 @@
-<h1 class="text-2xl font-bold mb-4">Dashboard</h1>
+<div class="min-h-screen bg-slate-50 sm:p-8 lg:p-12">
+  <div class="max-w-7xl mx-auto">
+    @if (isAdmin()) {
+      <button
+        (click)="goToCreateTask()"
+        class="mb-8 inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all active:scale-95 w-full sm:w-auto"
+      >
+        Nova tarefa
+      </button>
+    }
 
-@if (isAdmin()) {
-  <button (click)="goToCreateTask()" class="bg-blue-600 text-white px-4 py-2 rounded mb-4">
-    Nova tarefa
-  </button>
-}
+    <div class="mb-10 flex flex-col gap-4 sm:flex-row sm:items-center">
+      <div class="relative flex-1">
+        <input
+          type="text"
+          placeholder="Buscar por título..."
+          class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm transition-all focus:border-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-50 placeholder:text-slate-400"
+          [value]="titleFilter()"
+          (input)="titleFilter.set($any($event.target).value); loadTasks()"
+        />
+      </div>
 
-<div class="flex gap-4 mb-6">
-  <input
-    type="text"
-    placeholder="Buscar por título"
-    class="border rounded px-3 py-2 w-full"
-    [value]="titleFilter()"
-    (input)="titleFilter.set($any($event.target).value); loadTasks()"
-  />
+      <div class="relative">
+        <select
+          class="w-full sm:w-64 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm transition-all focus:border-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-50 cursor-pointer appearance-none"
+          [value]="statusFilter()"
+          (change)="statusFilter.set($any($event.target).value); loadTasks()"
+        >
+          <option value="">Todos os status</option>
+          <option value="PENDING">Pendente</option>
+          <option value="IN_PROGRESS">Em progresso</option>
+          <option value="COMPLETED">Concluída</option>
+          <option value="CANCELED">Cancelada</option>
+        </select>
+      </div>
+    </div>
 
-  <select
-    class="border rounded px-3 py-2"
-    [value]="statusFilter()"
-    (change)="statusFilter.set($any($event.target).value); loadTasks()"
-  >
-    <option value="">Todos</option>
-    <option value="PENDING">Pendente</option>
-    <option value="IN_PROGRESS">Em progresso</option>
-    <option value="COMPLETED">Concluída</option>
-    <option value="CANCELED">Cancelada</option>
-  </select>
+    @if (loading()) {
+      <div class="flex items-center justify-center py-12">
+        <p class="text-sm font-medium text-slate-500 animate-pulse">Carregando tarefas...</p>
+      </div>
+    }
+
+    @if (!errorMessage()) {
+      <div class="mb-6 rounded-lg p-4">
+        <p class="text-sm text-rose-600 font-medium">{{ errorMessage() }}</p>
+      </div>
+    }
+
+    @if (!loading() && tasks().length) {
+      <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        @for (task of tasks(); track task.publicId) {
+          <li class="flex flex-col justify-between rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+            <div>
+              <h2 class="mb-1 text-base font-semibold text-gray-800">
+                {{ task.title }}
+              </h2>
+
+              <p class="text-sm text-gray-600">
+                {{ task.description }}
+              </p>
+            </div>
+
+            <div class="mt-4 flex items-center justify-between gap-2">
+              <span
+                class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium"
+                [ngClass]="{
+                  'bg-yellow-100 text-yellow-800': task.status === 'PENDING',
+                  'bg-blue-100 text-blue-800': task.status === 'IN_PROGRESS',
+                  'bg-green-100 text-green-800': task.status === 'COMPLETED',
+                  'bg-red-100 text-red-800': task.status === 'CANCELED',
+                }"
+              >
+                {{ task.status }}
+              </span>
+
+              @if (isAdmin()) {
+                <div class="flex gap-2">
+                  <button
+                    class="rounded-md bg-green-100 px-3 py-1 text-xs font-medium text-green-700 hover:bg-green-200 transition"
+                    (click)="goToEditTask(task.publicId)"
+                  >
+                    Atualizar
+                  </button>
+                  <button
+                    class="rounded-md bg-red-100 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-200 transition"
+                    (click)="handleDeleteTask(task.publicId)"
+                  >
+                    Deletar
+                  </button>
+                </div>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+    }
+
+    @if (!loading() && !tasks().length) {
+      <div class="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-slate-200 border-dashed">
+        <p class="text-sm font-medium text-slate-400">Nenhuma tarefa encontrada.</p>
+      </div>
+    }
+  </div>
 </div>
 
-@if (loading()) {
-  <p>Carregando tarefas...</p>
-}
+@if (showDeleteModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+    <div 
+      class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl animate-in fade-in zoom-in duration-200"
+    >
+      <div class="flex flex-col items-center text-center">
+        <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-rose-100 text-rose-600">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
 
-@if (errorMessage()) {
-  <p class="text-red-500">{{ errorMessage() }}</p>
-}
-
-@if (!loading() && tasks().length) {
-  <ul>
-    @for (task of tasks(); track task.publicId) {
-      <li class="border p-4 rounded mb-2">
-        <h2 class="font-semibold">{{ task.title }}</h2>
-
-        <p class="text-sm text-gray-600">
-          {{ task.description }}
+        <h3 class="text-xl font-bold text-slate-800">Confirmar exclusão</h3>
+        <p class="mt-2 text-sm text-slate-500">
+          Você tem certeza que deseja excluir esta tarefa? Esta ação não poderá ser desfeita.
         </p>
+      </div>
 
-        <span
-          class="inline-block mt-2 text-xs px-2 py-1 rounded"
-          [ngClass]="{
-            'bg-yellow-200': task.status === 'PENDING',
-            'bg-blue-200': task.status === 'IN_PROGRESS',
-            'bg-green-200': task.status === 'COMPLETED',
-            'bg-red-200': task.status === 'CANCELED',
-          }"
+      <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+        <button
+          (click)="closeModal()"
+          class="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-600 transition-all hover:bg-slate-50 active:scale-95"
         >
-          {{ task.status }}
-        </span>
-        @if (isAdmin()) {
-          <button class="bg-green-200" (click)="goToEditTask(task.publicId)">
-            Atualizar
-          </button>
-          <button class="bg-red-300">
-            Deletar
-          </button>
-        }
-      </li>
-    }
-  </ul>
-}
-
-@if (!loading() && !tasks().length) {
-  <p>Nenhuma tarefa encontrada.</p>
+          Cancelar
+        </button>
+        <button
+          (click)="confirmDeleteTask()"
+          class="flex-1 rounded-xl bg-rose-600 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-rose-200 transition-all hover:bg-rose-700 active:scale-95"
+        >
+          Sim, deletar
+        </button>
+      </div>
+    </div>
+  </div>
 }

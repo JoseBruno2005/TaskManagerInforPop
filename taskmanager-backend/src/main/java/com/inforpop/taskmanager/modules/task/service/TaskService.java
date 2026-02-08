@@ -30,6 +30,7 @@ public class TaskService {
 
         var task = taskMapper.dtoCreateToEntity(createTaskDto);
         task.setCreator(userService.getAuthenticatedUser());
+        task.setStatus(TaskStatus.PENDING);
 
         if(createTaskDto.assignedUser() != null){
             User assignedUser = userService.getUserByPublicId(createTaskDto.assignedUser());
@@ -114,6 +115,8 @@ public class TaskService {
                 );
             }
             task.setAssignedUser(assignedUser);
+        }else{
+            task.setAssignedUser(null);
         }
 
         return taskMapper.entityToDto(taskRepository.save(task));

@@ -9,7 +9,6 @@ public record CreateTaskDto(
         @NotBlank(message = "O título da tarefa é obrigatório.")
         @Size(min = 3, message = "O título deve ter no mínimo 3 caracteries.")
         String title,
-        String status,
         @NotBlank(message = "A descrição da tarefa é obrigatório.")
         @Size(min = 10, message = "Adicione uma descrição de no mínimo 10 caracteries.")
         String description,

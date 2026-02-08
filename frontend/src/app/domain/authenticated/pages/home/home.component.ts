@@ -18,6 +18,9 @@ export class HomeComponent implements OnInit {
     loading = signal(true);
     errorMessage = signal('');
 
+    showDeleteModal = signal(false);
+    taskIdDelete = signal<string | null>('');
+
     titleFilter = signal('');
     statusFilter = signal('');
 
@@ -44,6 +47,35 @@ export class HomeComponent implements OnInit {
         this.router.navigate([`/admin/task/edit/${id}`])
     }
 
+    handleDeleteTask(id: string){
+        this.taskIdDelete.set(id);
+        this.showDeleteModal.set(true);
+    }
+
+    closeModal(){
+        this.showDeleteModal.set(false);
+        this.taskIdDelete.set(null);
+    }
+
+
+    confirmDeleteTask(){
+        const id = this.taskIdDelete();
+
+        if(id){
+            this.loading.set(true);
+            this.taskService.delete(id).subscribe({
+                next: () => {
+                    this.loadTasks();
+                    this.closeModal();
+                },error: (error) => {
+                    this.errorMessage.set(error.message);
+                    this.loading.set(false);
+                    this.closeModal();
+                }
+            })
+        }
+    }
+
     loadTasks(){
 
         this.loading.set(true);
@@ -54,12 +86,11 @@ export class HomeComponent implements OnInit {
         }).subscribe({
             next: (tasks) => {
                 this.tasks.set(tasks);
-                console.log(this.tasks)
                 this.loading.set(false);
             },
             error: (error) => {
                 console.log(this.errorMessage);
-                this.errorMessage = error.message;
+                this.errorMessage.set(error.message);
                 this.loading.set(false);
             }
         });

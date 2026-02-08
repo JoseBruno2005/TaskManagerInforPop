@@ -13,8 +13,6 @@ public class TaskMapper {
     public Task dtoCreateToEntity(CreateTaskDto createTaskDto){
         return Task.builder()
                 .title(createTaskDto.title())
-                .status(createTaskDto.status() != null ?
-                        TaskStatus.valueOf(createTaskDto.status()) : TaskStatus.PENDING)
                 .description(createTaskDto.description())
                 .build();
     }
